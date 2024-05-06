@@ -52,7 +52,7 @@ class MainControllerTest {
     }
 
     @Test
-    public void integrationTestAddAndGetAllUsers() throws Exception {
+    public void addAndGetAllUsersIT() {
 
         // Add first user
         given()
