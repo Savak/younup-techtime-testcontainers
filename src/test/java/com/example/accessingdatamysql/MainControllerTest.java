@@ -1,23 +1,25 @@
 package com.example.accessingdatamysql;
 
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasSize;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Testcontainers
 class MainControllerTest {
 
+    @Container
+    @ServiceConnection
     static MySQLContainer<?> mySQLContainer = new MySQLContainer<>(
             "mysql:latest"
     );
@@ -28,26 +30,9 @@ class MainControllerTest {
     @LocalServerPort
     private Integer port;
 
-    @BeforeAll
-    static void beforeAll() {
-        mySQLContainer.start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        mySQLContainer.stop();
-    }
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mySQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", mySQLContainer::getUsername);
-        registry.add("spring.datasource.password", mySQLContainer::getPassword);
-    }
-
     @BeforeEach
     void setUp() {
-        RestAssured.baseURI = "http://localhost:" + port;
+        RestAssured.port = port;
         userRepository.deleteAll();
     }
 
